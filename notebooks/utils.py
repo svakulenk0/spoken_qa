@@ -26,17 +26,19 @@ queries_versions = ['original', 'wav2vec2-base-960h']
 corpus_versions = ['entities', 'relations']
 
 dataset_versions = {'entities': ['WD18_entities_original', 'WD18_entities_wav2vec2-base-960h'],
-                    'relations': ['WD18_relations_original', 'WD18_relations_wav2vec2-base-960h']}
+                    'relations': ['WD18_relations_original', 'WD18_relations_wav2vec2-base-960h'],
+                    'relations-extra': ['WD18_relations-extra_original', 'WD18_relations-extra_wav2vec2-base-960h']}
 
 
 def load_data(dataset_version, split='train', data_path=data_path):
     dataset_name, corpus_version, queries_version = dataset_version.split('_')
+    qrels_version = corpus_version.split('-')[0]
     print('Loaded:', dataset_name, corpus_version, queries_version, split)
     
     data_path = os.path.join(data_path, dataset_name)
     corpus_path = os.path.join(data_path, 'corpus/%s.jsonl'%corpus_version)
     query_path = os.path.join(data_path, 'queries/%s.jsonl'%queries_version)  # original.jsonl wav2vec2-base-960h.jsonl
-    qrels_path = os.path.join(data_path, 'qrels/%s_%s.tsv'%(split, corpus_version))  # valid_relations.tsv train_entities.tsv
+    qrels_path = os.path.join(data_path, 'qrels/%s_%s.tsv'%(split, qrels_version))  # valid_relations.tsv train_entities.tsv
     
     return GenericDataLoader(corpus_file=corpus_path, query_file=query_path, qrels_file=qrels_path).load_custom()
 
@@ -74,5 +76,6 @@ def evaluate_model(model_name, corpus_version, similarities=similarities):
                             recall['Recall@5'], recall['Recall@10'], recall['Recall@100']])
 
         #     break
-
-        print('%.3f\t'*5*len(dataset_versions) % tuple(metrics))
+#         print(tuple(metrics))
+#         print(len(dataset_versions[corpus_version]))
+        print('%.3f\t'*5*len(dataset_versions[corpus_version]) % tuple(metrics))
